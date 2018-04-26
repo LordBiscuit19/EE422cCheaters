@@ -80,6 +80,11 @@ public class Main {
 		return nWordString;
 		
 	}
+	/**
+	 * This method will remove all characters that are not letters or numbers from a given string
+	 * @param nWordString- is the string of words with possible punctuation 
+	 * @return a string with no other characters besides alpha numeric 
+	 */
 	
 	public static String removePunc(String nWordString) {
 		String outputString="";
@@ -91,7 +96,10 @@ public class Main {
 		}
 		return outputString;	
 	}
-	
+	/**
+	 * prints out the map keys and the set contents associated with that key on the console 
+	 * @param mapper- is a hashmap of the nWord keys and the set of files associated with that key
+	 */
 	public static void printMap(HashMap<String, Set<File>> mapper) {
 		Set<String> keys = mapper.keySet();
 		for (String key : keys) {
@@ -100,10 +108,34 @@ public class Main {
 			System.out.println();
 		}
 	}
-	
+	/**
+	 * this method is called by printMapt to help print the files of the set
+	 * @param files is the directory of file 
+	 */
 	public static void printSet(Set<File> files) {
 		for (File file : files) {
 			System.out.print(file.getPath() + " ::: ");
 		}
+	}
+	/**
+	 * This method is passed the map containing the nWord keys and set of files  and the file that is to be checked for number 
+	 * of occurrences 
+	 * @param map
+	 * @param file
+	 * @return the number of times that the passed file is occurring in the map 
+	 */
+	public static int fileOccurance(HashMap<String, Set<File>> map, File file) {
+		int same = 0;
+		Set <String> keys = map.keySet();
+		for(String key : keys) {
+			for (File check : map.get(key)) {
+				if(check.equals(file)) {
+					same++;
+				}
+			}
+			
+		}
+		
+		return same; 
 	}
 }
