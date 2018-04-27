@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,7 +61,37 @@ public class Main {
 			scan.close();
 		}
 		printMap(mapOfFiles);
+		
+		ArrayList<File> files = new ArrayList<File>();
+		for (File file : dir.listFiles()) {
+			files.add(file);
+		}
+		
+		int [][] similarities = fileOccurance(mapOfFiles, files, files.size());
+		print2D(similarities);
+		
+		printCheaters(similarities, files);
+		System.out.println(mapOfFiles.size());
 	}
+	
+	
+	
+	
+	 public static void print2D(int mat[][])
+	    {
+	        // Loop through all rows
+	        for (int i = 0; i < mat.length; i++) {
+	 
+	            // Loop through all elements of current row
+	            for (int j = 0; j < mat[i].length; j++) {
+	                System.out.print(mat[i][j] + " ");
+	            }
+	            System.out.println();
+	        }
+	    }
+	
+	
+	
 	
 
 	/**
@@ -114,7 +145,7 @@ public class Main {
 	 */
 	public static void printSet(Set<File> files) {
 		for (File file : files) {
-			System.out.print(file.getPath() + " ::: ");
+			System.out.print(file.getName() + " ::: ");
 		}
 	}
 	/**
@@ -124,18 +155,41 @@ public class Main {
 	 * @param file
 	 * @return the number of times that the passed file is occurring in the map 
 	 */
-	public static int fileOccurance(HashMap<String, Set<File>> map, File file) {
-		int same = 0;
+	public static int[][] fileOccurance(HashMap<String, Set<File>> map, ArrayList<File> files, int numFiles) {
 		Set <String> keys = map.keySet();
-		for(String key : keys) {
-			for (File check : map.get(key)) {
-				if(check.equals(file)) {
-					same++;
+		int [][] same = new int[numFiles][numFiles];
+		
+		for (File file : files) {
+			for (String key : keys) {
+				if(map.get(key).contains(file)) {
+					for (File mapFile : map.get(key)) {
+						if (!file.equals(mapFile)){
+							int row = files.indexOf(file);
+							int col = files.indexOf(mapFile);
+							same[row][col] += 1;
+						}
+					}
 				}
 			}
-			
 		}
 		
 		return same; 
 	}
+	
+	
+	
+	
+	
+	public static void printCheaters(int[][] similarities, ArrayList<File> files) {
+		for (File file : files) {
+			for (int i = 0; i < similarities.length; i++) {
+				if (similarities[files.indexOf(file)][i] > 0) {
+					System.out.println("the following files cheated  " + file.getName() + "  " + files.get(i).getName());
+				}
+			}
+		}
+	}
+	
+	
+	
 }
