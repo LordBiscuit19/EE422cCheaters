@@ -7,11 +7,13 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Main {
 	
@@ -21,14 +23,16 @@ public class Main {
 
 		int wordPairs =  Integer.parseInt(args[1]);
 		
-		HashMap<String , Set<File> > mapOfFiles = new HashMap<String , Set<File>>();
+		LinkedHashMap<String , Set<File> > mapOfFiles = new LinkedHashMap<String , Set<File>>();
 		
 		File dir =new File(args[0]);
 		
 		for (File file : dir.listFiles()) {
 			
+			String tempTest = new String();
 			Scanner scan = new Scanner (new BufferedReader (new FileReader(file)));
-			PriorityQueue<String> queue = new PriorityQueue<String>();
+			scan.useDelimiter("\\s+");
+			LinkedBlockingQueue<String> queue = new LinkedBlockingQueue<String>();
 			for(int i = 0; i < wordPairs; i++) {
 				if(scan.hasNext()) {
 					queue.add(removePunc(scan.next()));
@@ -60,8 +64,9 @@ public class Main {
 			
 			scan.close();
 		}
-		printMap(mapOfFiles);
-		
+		//printMap(mapOfFiles);
+		System.out.println(mapOfFiles.size());
+
 		ArrayList<File> files = new ArrayList<File>();
 		for (File file : dir.listFiles()) {
 			files.add(file);
@@ -70,7 +75,7 @@ public class Main {
 		int [][] similarities = fileOccurance(mapOfFiles, files, files.size());
 		print2D(similarities);
 		
-		printCheaters(similarities, files);
+		printCheaters(similarities, files, Integer.parseInt(args[2]));
 		System.out.println(mapOfFiles.size());
 	}
 	
@@ -159,15 +164,13 @@ public class Main {
 		Set <String> keys = map.keySet();
 		int [][] same = new int[numFiles][numFiles];
 		
-		for (File file : files) {
-			for (String key : keys) {
-				if(map.get(key).contains(file)) {
-					for (File mapFile : map.get(key)) {
-						if (!file.equals(mapFile)){
-							int row = files.indexOf(file);
-							int col = files.indexOf(mapFile);
-							same[row][col] += 1;
-						}
+		for (String key : keys) {
+			for (File mapFile1 : map.get(key)) {
+				int row = files.indexOf(mapFile1);
+				for (File mapFile2 : map.get(key)) {
+					if (!mapFile1.equals(mapFile2)){
+						int col = files.indexOf(mapFile2);
+						same[row][col] += 1;
 					}
 				}
 			}
@@ -180,11 +183,14 @@ public class Main {
 	
 	
 	
-	public static void printCheaters(int[][] similarities, ArrayList<File> files) {
-		for (File file : files) {
-			for (int i = 0; i < similarities.length; i++) {
-				if (similarities[files.indexOf(file)][i] > 0) {
-					System.out.println("the following files cheated  " + file.getName() + "  " + files.get(i).getName());
+	public static void printCheaters(int[][] similarities, ArrayList<File> files, int limit) {
+		System.out.println("Cheaters above " + limit + ":");
+		int filesSize = files.size();
+		//int similaritiesLength = similarities.length;
+		for (int i = 1; i < filesSize; i++) {
+			for (int j = 0; j < i; j++) {
+				if (similarities[j][i] > limit) {
+					System.out.println("The following files cheated:  " + files.get(j).getName() + "  " + files.get(i).getName() + " with hits: " + similarities[j][i]);
 				}
 			}
 		}
